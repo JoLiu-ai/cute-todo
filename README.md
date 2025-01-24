@@ -1,4 +1,4 @@
-Based on seeing a Twitter post, I decided to try using Claude and DeepSeek to create a cute and functional to-do app.
+Based on seeing a Twitter post from `@localhost_4173`, I decided to try using Claude and DeepSeek to create a cute and functional to-do app.
 
 # home page
 <img width="1029" alt="截屏2025-01-24 15 53 47" src="https://github.com/user-attachments/assets/7aca68f3-443e-4051-ac42-2d1982ae2821" />
