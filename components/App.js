@@ -2,6 +2,7 @@ import { HomeSection } from '../sections/HomeSection.js';
 import { TodoSection } from '../sections/TodoSection.js';
 import { NotesSection } from '../sections/NotesSection.js';
 import { CountdownSection } from '../sections/CountdownSection.js';
+import { QuotesSection } from '../sections/QuotesSection.js';
 import { QuotesService } from '../services/QuotesService.js';
 
 export function initializeApp({ storageService, dateService }) {
@@ -11,7 +12,8 @@ export function initializeApp({ storageService, dateService }) {
         home: new HomeSection(storageService, dateService, quotesService),
         todo: new TodoSection(storageService, dateService),
         countdown: new CountdownSection(storageService, dateService),
-        notes: new NotesSection(storageService, dateService)
+        notes: new NotesSection(storageService, dateService),
+        quotes: new QuotesSection(storageService, quotesService)
     };
 
     // Initialize Pomodoro

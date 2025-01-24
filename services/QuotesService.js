@@ -35,6 +35,10 @@ export class QuotesService {
         }
     }
 
+    getAllQuotes() {
+        return this.storageService.get('quotes') || [];
+    }
+
     getRandomQuote() {
         const quotes = this.storageService.get('quotes') || [];
         return quotes[Math.floor(Math.random() * quotes.length)];

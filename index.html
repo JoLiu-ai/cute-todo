@@ -34,6 +34,9 @@
                     <button data-section="notes" class="nav-btn w-full p-3 rounded-xl bg-green-50 text-green-600">
                         📝 Fluffy Notes
                     </button>
+                    <button data-section="quotes" class="nav-btn w-full p-3 rounded-xl bg-pink-50 text-pink-600">
+                        📚 Knowledge
+                    </button>
                 </div>
                 <!-- Pomodoro Timer -->
                 <div class="mt-8 pt-8 border-t border-gray-100">
@@ -91,7 +94,14 @@
                 <div id="homeSection"></div>
                 <div id="todoSection" class="hidden"></div>
                 <div id="countdownSection" class="hidden"></div>
-                <div id="notesSection" class="hidden"></div>
+                <section id="notesSection" class="hidden flex-1 overflow-auto">
+                    <!-- Notes content will be rendered here -->
+                </section>
+
+                <!-- Knowledge Wall Section -->
+                <section id="quotesSection" class="hidden flex-1 overflow-auto">
+                    <!-- Quotes content will be rendered here -->
+                </section>
             </main>
         </div>
     </div>
