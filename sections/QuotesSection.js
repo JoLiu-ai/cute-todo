@@ -3,153 +3,382 @@ export class QuotesSection {
         this.storageService = storageService;
         this.quotesService = quotesService;
         this.element = document.getElementById('quotesSection');
+        this.categories = [
+            { name: '脑科学', color: 'purple', icon: '🧠' },
+            { name: '效率管理', color: 'blue', icon: '⚡' },
+            { name: '心理学', color: 'pink', icon: '💭' },
+            { name: '认知科学', color: 'indigo', icon: '🔮' },
+            { name: '习惯养成', color: 'green', icon: '🌱' },
+            { name: '情绪管理', color: 'yellow', icon: '🌈' }
+        ];
+        this.currentView = 'wall'; // 'wall' or 'manage'
     }
 
     initialize() {
-        if (!this.initialized) {
-            this.render();
-            this.initialized = true;
-        }
-        this.update();
-    }
-
-    render() {
-        this.element.innerHTML = `
-            <div class="p-8 space-y-6">
-                <!-- 标题栏 -->
-                <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-bold text-orange-600">Knowledge Wall 📚</h2>
-                    <button id="addQuoteBtn" class="px-4 py-2 bg-orange-100 text-orange-600 rounded-lg hover:bg-orange-200 transition-colors">
-                        Add Quote
-                    </button>
-                </div>
-
-                <!-- 照片墙布局 -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="quotesWall">
-                    <!-- 引用卡片将通过 JavaScript 动态添加 -->
-                </div>
-            </div>
-        `;
-
+        this.render();
         this.attachEventListeners();
     }
 
-    update() {
-        const quotes = this.quotesService.getAllQuotes();
-        const wallElement = this.element.querySelector('#quotesWall');
-        
-        if (wallElement) {
-            wallElement.innerHTML = quotes.map(quote => this.createQuoteCard(quote)).join('');
+    render() {
+        if (this.currentView === 'wall') {
+            this.renderWall();
+        } else {
+            this.renderManage();
         }
     }
 
-    createQuoteCard(quote) {
-        // 随机选择一个较小的旋转角度
-        const rotation = Math.random() * 4 - 2; // -2° 到 2° 之间
+    renderWall() {
+        const quotes = this.quotesService.getAllQuotes();
         
-        return `
-            <div class="group relative bg-white p-4 transition-all duration-300 transform hover:-translate-y-1 hover:z-10"
-                style="transform: rotate(${rotation}deg)">
-                <!-- 照片效果 -->
-                <div class="relative bg-white p-3 shadow-md">
-                    <!-- 白色边框 -->
-                    <div class="absolute inset-0 border-[12px] border-white"></div>
-                
-                    <!-- 内容区域 -->
-                    <div class="relative space-y-3">
-                        <blockquote class="text-sm text-gray-700 leading-relaxed">
-                            "${quote.content}"
-                        </blockquote>
-                    
-                        <div class="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
-                            <span class="px-2 py-0.5 bg-gray-50 rounded-full">
-                                ${quote.category}
-                            </span>
-                            <span class="italic">
-                                —— ${quote.source}
-                            </span>
-                        </div>
-                    </div>
+        this.element.innerHTML = `
+            <div class="p-6 space-y-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-800">Knowledge Wall</h2>
+                    <button id="switchToManageBtn" 
+                        class="flex items-center gap-2 px-4 py-2 bg-pink-100 text-pink-600 rounded-lg 
+                               hover:bg-pink-200 transition-colors">
+                        <span>✏️</span>
+                        <span>Manage Quotes</span>
+                    </button>
                 </div>
 
-                <!-- 胶带效果 -->
-                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 w-16 h-4">
-                    <div class="absolute inset-0 bg-amber-100/60 transform rotate-2"></div>
-                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                <!-- Category Filters -->
+                <div class="flex flex-wrap gap-2">
+                    ${this.categories.map(cat => `
+                        <button class="category-filter px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5
+                            bg-${cat.color}-100 text-${cat.color}-600 hover:bg-${cat.color}-200 transition-colors">
+                            <span>${cat.icon}</span>
+                            <span>${cat.name}</span>
+                        </button>
+                    `).join('')}
+                </div>
+
+                <!-- Quotes Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    ${quotes.map(quote => this.createQuoteCard(quote)).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    renderManage() {
+        const quotes = this.quotesService.getAllQuotes();
+        
+        this.element.innerHTML = `
+            <div class="p-6 space-y-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <button id="backToWallBtn" class="text-gray-400 hover:text-gray-600">
+                            ← Back
+                        </button>
+                        <h2 class="text-2xl font-bold text-gray-800">Manage Knowledge</h2>
+                    </div>
+                    <button id="addQuoteBtn" 
+                        class="flex items-center gap-2 px-4 py-2 bg-pink-500 text-white rounded-lg 
+                               hover:bg-pink-600 transition-colors">
+                        <span>+</span>
+                        <span>New Quote</span>
+                    </button>
+                </div>
+
+                <!-- Quotes List -->
+                <div class="space-y-4">
+                    ${quotes.map(quote => this.createQuoteManageRow(quote)).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    createQuoteManageRow(quote) {
+        const category = this.categories.find(c => c.name === quote.category) || this.categories[0];
+        return `
+            <div class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex-1 space-y-2">
+                        <span class="px-2 py-1 text-sm rounded-lg inline-flex items-center gap-1.5
+                            bg-${category.color}-50 text-${category.color}-600">
+                            ${category.icon} ${quote.category}
+                        </span>
+                        <p class="text-gray-600">${quote.content}</p>
+                        <div class="text-sm text-gray-400 italic">
+                            —— ${quote.source}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" class="edit-quote p-2 text-blue-500 hover:bg-blue-50 rounded-lg"
+                            data-id="${quote.id}">
+                            <span class="pointer-events-none">✏️</span>
+                        </button>
+                        <button type="button" class="delete-quote p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                            data-id="${quote.id}">
+                            <span class="pointer-events-none">🗑️</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
     }
 
     attachEventListeners() {
-        const addButton = this.element.querySelector('#addQuoteBtn');
-        if (addButton) {
-            addButton.addEventListener('click', () => this.showAddQuoteModal());
-        }
+        // 使用事件委托处理所有按钮点击
+        this.element.addEventListener('click', (e) => {
+            console.log('Clicked element:', e.target);
+            const target = e.target;
+            const backBtn = target.closest('#backToWallBtn');
+            const switchBtn = target.closest('#switchToManageBtn');
+            const addBtn = target.closest('#addQuoteBtn');
+            const editBtn = target.closest('.edit-quote');
+            const deleteBtn = target.closest('.delete-quote');
+
+            console.log('Found buttons:', {
+                backBtn,
+                switchBtn,
+                addBtn,
+                editBtn,
+                deleteBtn
+            });
+
+            // 返回按钮
+            if (backBtn) {
+                console.log('Back button clicked');
+                this.currentView = 'wall';
+                this.render();
+            }
+            
+            // 切换到管理视图按钮
+            if (switchBtn) {
+                this.currentView = 'manage';
+                this.render();
+            }
+            
+            // 添加新知识按钮
+            if (addBtn) {
+                this.showAddQuoteModal();
+            }
+            
+            // 编辑按钮
+            if (editBtn) {
+                console.log('Edit button clicked, id:', editBtn.dataset.id);
+                const quoteId = editBtn.dataset.id;
+                this.showEditQuoteModal(quoteId);
+            }
+            
+            // 删除按钮
+            if (deleteBtn) {
+                console.log('Delete button clicked, id:', deleteBtn.dataset.id);
+                const quoteId = deleteBtn.dataset.id;
+                this.deleteQuote(quoteId);
+            }
+        });
     }
 
     showAddQuoteModal() {
-        // 创建模态框
-        const modal = document.createElement('div');
-        modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+        const modal = document.getElementById('modal');
         modal.innerHTML = `
-            <div class="bg-white rounded-xl p-6 w-full max-w-md">
-                <h3 class="text-xl font-bold text-orange-600 mb-4">Add New Quote</h3>
-                <form id="addQuoteForm" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Content</label>
-                        <textarea 
-                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-200 outline-none"
-                            rows="3"
-                            required
-                        ></textarea>
+            <div class="modal-content w-full max-w-lg">
+                <div class="p-6 space-y-4">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Add New Quote</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                            <select id="quoteCategory" class="w-full p-2 border rounded-lg">
+                                ${this.categories.map(cat => `
+                                    <option value="${cat.name}">${cat.icon} ${cat.name}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                            <textarea id="quoteContent" rows="3" 
+                                class="w-full p-2 border rounded-lg resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Source</label>
+                            <input type="text" id="quoteSource" 
+                                class="w-full p-2 border rounded-lg">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                        <input type="text" class="w-full p-2 border border-gray-200 rounded-lg" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Source</label>
-                        <input type="text" class="w-full p-2 border border-gray-200 rounded-lg" required>
-                    </div>
-                    <div class="flex justify-end gap-2 pt-4">
-                        <button type="button" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg" id="cancelBtn">
+                    <div class="flex justify-end gap-2 mt-6">
+                        <button class="modal-close px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
                             Cancel
                         </button>
-                        <button type="submit" class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600">
-                            Add Quote
+                        <button id="saveQuoteBtn" 
+                            class="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600">
+                            Save Quote
                         </button>
                     </div>
-                </form>
+                </div>
             </div>
         `;
 
-        document.body.appendChild(modal);
-
-        // 处理表单提交
-        const form = modal.querySelector('#addQuoteForm');
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const [content, category, source] = [
-                form.querySelector('textarea').value,
-                form.querySelector('input[type="text"]').value,
-                form.querySelector('input[type="text"]:last-of-type').value
-            ];
-
-            this.quotesService.addQuote({
-                content,
-                category,
-                source,
-                tag: category // 可以根据需要调整
+        // 处理关闭按钮
+        modal.querySelectorAll('.modal-close').forEach(btn => {
+            btn.addEventListener('click', () => {
+                modal.classList.add('hidden');
             });
-
-            this.update();
-            modal.remove();
         });
 
-        // 处理取消按钮
-        modal.querySelector('#cancelBtn').addEventListener('click', () => {
-            modal.remove();
+        const saveBtn = modal.querySelector('#saveQuoteBtn');
+        saveBtn.addEventListener('click', () => {
+            const category = modal.querySelector('#quoteCategory').value;
+            const content = modal.querySelector('#quoteContent').value;
+            const source = modal.querySelector('#quoteSource').value;
+
+            if (content && source) {
+                this.quotesService.addQuote({ category, content, source });
+                modal.classList.add('hidden');
+                this.render();
+            }
         });
+
+        modal.classList.remove('hidden');
+    }
+
+    createQuoteCard(quote) {
+        const category = this.categories.find(c => c.name === quote.category) || this.categories[0];
+        return `
+            <div class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                <div class="space-y-3">
+                    <div class="flex items-start justify-between">
+                        <span class="px-2 py-1 text-sm rounded-lg 
+                            bg-${category.color}-50 text-${category.color}-600">
+                            ${category.icon} ${quote.category}
+                        </span>
+                        <button class="text-gray-400 hover:text-gray-600">⋮</button>
+                    </div>
+                    <p class="text-gray-600 text-sm leading-relaxed">${quote.content}</p>
+                    <div class="text-xs text-gray-400 italic">
+                        —— ${quote.source}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    showEditQuoteModal(quoteId) {
+        const quote = this.quotesService.getQuoteById(quoteId);
+        if (!quote) return;
+
+        const modal = document.getElementById('modal');
+        modal.innerHTML = `
+            <div class="modal-content w-full max-w-lg">
+                <div class="p-6 space-y-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Edit Quote</h3>
+                        <button class="modal-close text-gray-400 hover:text-gray-600">×</button>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                            <select id="quoteCategory" class="w-full p-2 border rounded-lg">
+                                ${this.categories.map(cat => `
+                                    <option value="${cat.name}" ${cat.name === quote.category ? 'selected' : ''}>
+                                        ${cat.icon} ${cat.name}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                            <textarea id="quoteContent" rows="3" 
+                                class="w-full p-2 border rounded-lg resize-none">${quote.content}</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Source</label>
+                            <input type="text" id="quoteSource" 
+                                class="w-full p-2 border rounded-lg"
+                                value="${quote.source}">
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-2 mt-6">
+                        <button class="modal-close px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                            Cancel
+                        </button>
+                        <button id="updateQuoteBtn" 
+                            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                            Update Quote
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // 处理关闭按钮
+        modal.querySelectorAll('.modal-close').forEach(btn => {
+            btn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+        });
+
+        // 处理点击遮罩层关闭
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+
+        const updateBtn = modal.querySelector('#updateQuoteBtn');
+        updateBtn.addEventListener('click', () => {
+            const category = modal.querySelector('#quoteCategory').value;
+            const content = modal.querySelector('#quoteContent').value;
+            const source = modal.querySelector('#quoteSource').value;
+
+            if (content && source) {
+                this.quotesService.editQuote(quoteId, { category, content, source });
+                modal.classList.add('hidden');
+                this.render();
+            }
+        });
+
+        modal.classList.remove('hidden');
+    }
+
+    deleteQuote(quoteId) {
+        const modal = document.getElementById('modal');
+        modal.innerHTML = `
+            <div class="modal-content w-full max-w-md">
+                <div class="p-6 space-y-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Delete Quote</h3>
+                        <button class="modal-close text-gray-400 hover:text-gray-600">×</button>
+                    </div>
+                    <p class="text-gray-600">Are you sure you want to delete this quote? This action cannot be undone.</p>
+                    <div class="flex justify-end gap-2 mt-6">
+                        <button class="modal-close px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                            Cancel
+                        </button>
+                        <button id="confirmDeleteBtn" 
+                            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // 处理关闭按钮
+        modal.querySelectorAll('.modal-close').forEach(btn => {
+            btn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+        });
+
+        // 处理点击遮罩层关闭
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+
+        const confirmBtn = modal.querySelector('#confirmDeleteBtn');
+        confirmBtn.addEventListener('click', () => {
+            this.quotesService.deleteQuote(quoteId);
+            modal.classList.add('hidden');
+            this.render();
+        });
+
+        modal.classList.remove('hidden');
     }
 } 

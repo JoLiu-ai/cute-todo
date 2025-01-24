@@ -54,4 +54,28 @@ export class QuotesService {
         quotes.push(newQuote);
         this.storageService.save('quotes', quotes);
     }
+
+    editQuote(id, updatedQuote) {
+        const quotes = this.storageService.get('quotes') || [];
+        console.log('Editing quote:', id, updatedQuote);
+        const index = quotes.findIndex(q => q.id === parseInt(id));
+        if (index !== -1) {
+            quotes[index] = { ...quotes[index], ...updatedQuote };
+            this.storageService.save('quotes', quotes);
+            console.log('Quote updated:', quotes[index]);
+        }
+    }
+
+    deleteQuote(id) {
+        const quotes = this.storageService.get('quotes') || [];
+        console.log('Deleting quote:', id);
+        const filteredQuotes = quotes.filter(q => q.id !== parseInt(id));
+        this.storageService.save('quotes', filteredQuotes);
+        console.log('Quotes after deletion:', filteredQuotes);
+    }
+
+    getQuoteById(id) {
+        const quotes = this.storageService.get('quotes') || [];
+        return quotes.find(q => q.id === parseInt(id));
+    }
 } 
