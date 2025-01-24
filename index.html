@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐾 CuteTodo - Fluffy Productivity</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/styles/main.css">
+</head>
+<body class="bg-pink-50 min-h-screen p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-pink-600 mb-2">🐾 CuteTodo</h1>
+            <p class="text-pink-400">Get things done with fluffy efficiency! 🌸</p>
+            <div id="motivationQuote" class="mt-4 text-pink-300 text-sm max-w-md mx-auto"></div>
+        </div>
+
+        <!-- Main Grid Layout -->
+        <div class="grid grid-cols-5 gap-6">
+            <!-- Sidebar -->
+            <nav class="col-span-1 bg-white rounded-2xl p-4 h-fit sticky top-4">
+                <div class="space-y-4">
+                    <button data-section="home" class="nav-btn w-full p-3 rounded-xl bg-pink-50 text-pink-600">
+                        🏠 Home
+                    </button>
+                    <button data-section="todo" class="nav-btn w-full p-3 rounded-xl bg-blue-50 text-blue-600">
+                        📌 TodoList
+                    </button>
+                    <button data-section="countdown" class="nav-btn w-full p-3 rounded-xl bg-purple-50 text-purple-600">
+                        ⏰ Countdown
+                    </button>
+                    <button data-section="notes" class="nav-btn w-full p-3 rounded-xl bg-green-50 text-green-600">
+                        📝 Fluffy Notes
+                    </button>
+                </div>
+                <!-- Pomodoro Timer -->
+                <div class="mt-8 pt-8 border-t border-gray-100">
+                    <div class="text-center space-y-6">
+                        <div class="flex flex-col items-center">
+                            <div class="flex items-center gap-2 text-sm text-red-400 mb-3">
+                                <span class="animate-bounce">🍅</span>
+                                <span class="font-medium tracking-wide">POMODORO</span>
+                            </div>
+                            <div id="pomodoroTimer" class="font-bold text-2xl text-red-500 tabular-nums">
+                                25:00
+                            </div>
+                        </div>
+
+                        <div class="flex justify-center gap-2">
+                            <button id="startPomodoroBtn" 
+                                    class="w-10 h-10 bg-red-400 text-white rounded-lg hover:bg-red-500 transition-all hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center text-lg">
+                                ▶
+                            </button>
+                            <button id="resetPomodoroBtn"
+                                    class="w-10 h-10 text-red-400 hover:bg-red-50 rounded-lg transition-all hover:shadow-md hover:-translate-y-0.5 flex items-center justify-center text-lg">
+                                ⟳
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 text-center text-xs">
+                            <div class="bg-gradient-to-br from-red-50 to-pink-50 rounded-lg p-2 shadow-sm">
+                                <div class="text-red-400 mb-1">Sessions</div>
+                                <div class="text-red-500 font-bold" id="pomodoroCount">0</div>
+                            </div>
+                            <div class="bg-gradient-to-br from-red-50 to-pink-50 rounded-lg p-2 shadow-sm">
+                                <div class="text-red-400 mb-1">Total</div>
+                                <div class="text-red-500 font-bold" id="totalFocusTime">0m</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Countdowns -->
+                <div class="mt-8 pt-8 border-t border-gray-100">
+                    <div class="text-center space-y-4">
+                        <div class="flex flex-col items-center">
+                            <div class="flex items-center gap-2 text-sm text-purple-400 mb-3">
+                                <span class="animate-[spin_2s_linear_infinite] origin-center inline-block">⏳</span>
+                                <span class="font-medium tracking-wide">COUNTDOWNS</span>
+                            </div>
+                        </div>
+                        <div id="sidebarCountdowns" class="space-y-3"></div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-span-4">
+                <div id="homeSection"></div>
+                <div id="todoSection" class="hidden"></div>
+                <div id="countdownSection" class="hidden"></div>
+                <div id="notesSection" class="hidden"></div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal Template -->
+    <div id="modal" class="modal hidden"></div>
+
+    <!-- Scripts -->
+    <script type="module" src="main.js"></script>
+</body>
+</html> 

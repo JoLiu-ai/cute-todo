@@ -1,0 +1,115 @@
+/* Input Base Styles */
+.input-base {
+    @apply p-2.5 text-sm;
+    @apply border-2 border-pink-200 rounded-xl;
+    @apply focus:outline-none focus:border-pink-400;
+    @apply placeholder:text-gray-400;
+}
+
+.input-base:focus::placeholder {
+    @apply text-pink-300;
+}
+
+/* Select Input */
+.select-base {
+    @apply input-base;
+    @apply appearance-none bg-white cursor-pointer;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23F9A8D4' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+}
+
+/* Time Input Styles */
+input[type="time"].input-base {
+    @apply cursor-pointer;
+}
+
+input[type="time"].input-base::-webkit-calendar-picker-indicator {
+    @apply cursor-pointer opacity-50 hover:opacity-75 transition-opacity;
+    filter: invert(73%) sepia(42%) saturate(845%) hue-rotate(297deg) brightness(103%) contrast(96%);
+}
+
+/* Button Styles */
+.btn-primary {
+    @apply bg-pink-400 text-white px-4 py-2.5 rounded-xl;
+    @apply hover:bg-pink-500 transition-colors;
+    @apply flex items-center text-sm;
+}
+
+.btn-secondary {
+    @apply bg-gray-200 text-gray-600 px-4 py-2.5 rounded-xl;
+    @apply hover:bg-gray-300 transition-colors text-sm;
+}
+
+/* Category Pills */
+.category-pill {
+    @apply px-2 py-0.5 rounded-full;
+    @apply text-[10px];
+    @apply transition-all duration-200;
+    position: relative;
+    overflow: hidden;
+}
+
+.category-pill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.category-pill:hover::after {
+    opacity: 0.1;
+}
+
+.category-pill:hover {
+    transform: translateY(-1px);
+}
+
+/* Category-specific colors */
+.category-pill[data-category*="💭"] {
+    @apply bg-blue-50 text-blue-500;
+}
+
+.category-pill[data-category*="💡"] {
+    @apply bg-purple-50 text-purple-500;
+}
+
+.category-pill[data-category*="❤️"] {
+    @apply bg-pink-50 text-pink-500;
+}
+
+.category-pill[data-category*="📝"] {
+    @apply bg-green-50 text-green-500;
+}
+
+.category-pill.selected {
+    @apply ring-2 ring-offset-2;
+}
+
+/* Note Input Styles */
+.note-input {
+    @apply px-3 py-1.5 text-xs;
+    @apply border border-blue-200 rounded-lg;
+    @apply focus:outline-none focus:border-blue-300 focus:ring-1 focus:ring-blue-200;
+    @apply placeholder:text-gray-400;
+}
+
+.note-input:focus::placeholder {
+    @apply text-blue-300;
+}
+
+/* Note Add Button */
+.note-add-btn {
+    @apply px-3 py-1.5;
+    @apply bg-blue-400 text-white text-xs rounded-lg;
+    @apply hover:bg-blue-500 transition-colors;
+    @apply flex items-center gap-1 whitespace-nowrap;
+}
+
+.note-add-btn .emoji {
+    @apply text-[10px];
+} 

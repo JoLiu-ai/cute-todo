@@ -1,0 +1,46 @@
+@import 'components/modal.css';
+@import 'components/note.css';
+@import 'components/task.css';
+@import 'components/animations.css';
+@import 'components/forms.css';
+
+body {
+    font-family: 'Comic Neue', cursive;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Remove duplicate utility classes since we're using forms.css now */
+
+/* Common utility classes */
+.section-container {
+    @apply bg-white rounded-2xl p-6 shadow-lg;
+}
+
+.input-base {
+    @apply p-2.5 text-sm border-2 border-pink-200 rounded-xl focus:outline-none focus:border-pink-400;
+}
+
+.btn-base {
+    @apply px-4 py-2.5 rounded-xl transition-colors text-sm;
+}
+
+.btn-primary {
+    @apply btn-base bg-pink-400 text-white hover:bg-pink-500;
+}
+
+.btn-secondary {
+    @apply btn-base bg-gray-200 text-gray-600 hover:bg-gray-300;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+.animate-shake {
+    animation: shake 0.3s ease-in-out 2;
+} 

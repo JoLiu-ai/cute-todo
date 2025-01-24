@@ -1,0 +1,18 @@
+.modal {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+}
+
+.modal-content {
+    @apply bg-white rounded-2xl p-6 w-96 ml-auto h-full;
+}
+
+/* 为编辑笔记模态框添加特殊样式 */
+.modal-content.edit-note {
+    @apply fixed right-0 top-0 bottom-0 rounded-l-2xl shadow-2xl;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+} 
