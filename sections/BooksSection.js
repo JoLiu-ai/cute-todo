@@ -115,7 +115,7 @@ export class BooksSection {
                     </div>
 
                     <!-- Table -->
-                    <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="bg-white rounded-lg shadow overflow-hidden relative">
                         <div class="overflow-x-auto">
                             <table class="w-full">
                                 <thead>
@@ -296,7 +296,6 @@ export class BooksSection {
 
     createBookTableRow(book) {
         const category = this.categories.find(c => c.name === book.category) || this.categories[0];
-        const status = this.statusGroups.find(s => s.id === book.status);
         
         return `
             <tr class="hover:bg-gray-50">
@@ -321,12 +320,17 @@ export class BooksSection {
                     </span>
                 </td>
                 <td class="p-4">
-                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm
-                        ${book.status === 'reading' ? 'bg-yellow-50 text-yellow-600' :
-                          book.status === 'completed' ? 'bg-green-50 text-green-600' :
-                          'bg-gray-50 text-gray-600'}">
-                        ${status.icon} ${status.name}
-                    </span>
+                    <div class="inline-block">
+                        <button class="status-dropdown-btn inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm
+                            ${book.status === 'reading' ? 'bg-yellow-50 text-yellow-600' :
+                              book.status === 'completed' ? 'bg-green-50 text-green-600' :
+                              'bg-gray-50 text-gray-600'}"
+                            data-book-id="${book.id}">
+                            ${this.getStatusIcon(book.status)}
+                            ${this.getStatusName(book.status)}
+                            <span class="ml-1">▼</span>
+                        </button>
+                    </div>
                 </td>
                 <td class="p-4 text-gray-600">${book.pages || '-'}</td>
                 <td class="p-4 text-gray-600">
@@ -346,6 +350,31 @@ export class BooksSection {
                 </td>
             </tr>
         `;
+    }
+
+    // 添加辅助方法
+    getStatusIcon(status) {
+        const statusGroup = this.statusGroups.find(s => s.id === status);
+        return statusGroup ? statusGroup.icon : '📚';
+    }
+
+    getStatusName(status) {
+        const statusGroup = this.statusGroups.find(s => s.id === status);
+        return statusGroup ? statusGroup.name : 'Unknown';
+    }
+
+    // 更新状态的方法
+    updateBookStatus(bookId, newStatus) {
+        const books = this.storageService.get('books') || [];
+        const index = books.findIndex(b => b.id === parseInt(bookId));
+        if (index !== -1) {
+            books[index] = {
+                ...books[index],
+                status: newStatus
+            };
+            this.storageService.save('books', books);
+            this.render();
+        }
     }
 
     showAddBookModal() {
@@ -718,6 +747,65 @@ export class BooksSection {
         modal.classList.remove('hidden');
     }
 
+    showStatusPopup(button, bookId, currentStatus) {
+        // 先移除已存在的弹窗
+        const existingPopup = document.getElementById('statusPopup');
+        if (existingPopup) existingPopup.remove();
+
+        // 获取按钮位置
+        const rect = button.getBoundingClientRect();
+
+        // 创建弹窗
+        const popup = document.createElement('div');
+        popup.id = 'statusPopup';
+        popup.className = 'fixed bg-white rounded-lg shadow-xl border border-gray-200 z-50';
+        popup.style.cssText = `
+            top: ${rect.bottom + window.scrollY + 5}px;
+            left: ${rect.left + window.scrollX}px;
+            min-width: 200px;
+        `;
+
+        // 添加弹窗内容
+        popup.innerHTML = `
+            <div class="p-2 space-y-1">
+                ${this.statusGroups.map(status => `
+                    <button class="status-option w-full text-left px-3 py-2 text-sm rounded-lg
+                        ${status.id === currentStatus ? 'bg-gray-100' : 'hover:bg-gray-50'}"
+                        data-book-id="${bookId}" 
+                        data-status="${status.id}">
+                        <span class="inline-flex items-center gap-2">
+                            ${status.icon} ${status.name}
+                            ${status.id === currentStatus ? '<span class="ml-auto">✓</span>' : ''}
+                        </span>
+                    </button>
+                `).join('')}
+            </div>
+        `;
+
+        // 添加遮罩层
+        const overlay = document.createElement('div');
+        overlay.className = 'fixed inset-0 z-40';
+        overlay.addEventListener('click', () => {
+            popup.remove();
+            overlay.remove();
+        });
+
+        // 添加到文档
+        document.body.appendChild(overlay);
+        document.body.appendChild(popup);
+
+        // 处理选项点击
+        popup.querySelectorAll('.status-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const newStatus = option.dataset.status;
+                const bookId = option.dataset.bookId;
+                this.updateBookStatus(bookId, newStatus);
+                popup.remove();
+                overlay.remove();
+            });
+        });
+    }
+
     attachEventListeners() {
         this.element.addEventListener('click', (e) => {
             const addBtn = e.target.closest('#addBookBtn');
@@ -750,12 +838,16 @@ export class BooksSection {
                 this.render();
             }
 
-            // 添加状态筛选处理
-            const statusBtn = e.target.closest('.status-filter');
+            // 修改状态按钮点击处理
+            const statusBtn = e.target.closest('.status-dropdown-btn');
             if (statusBtn) {
-                const status = statusBtn.dataset.status;
-                this.activeStatus = status || null;
-                this.render();
+                const bookId = statusBtn.dataset.bookId;
+                const books = this.storageService.get('books') || [];
+                const book = books.find(b => b.id === parseInt(bookId));
+                if (book) {
+                    this.showStatusPopup(statusBtn, bookId, book.status);
+                }
+                e.stopPropagation();
             }
         });
     }

@@ -42,4 +42,28 @@ body {
 
 .animate-shake {
     animation: shake 0.3s ease-in-out 2;
+}
+
+.status-dropdown {
+    transform-origin: top;
+    transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+}
+
+.status-dropdown:not(.hidden) {
+    animation: dropdown-appear 0.1s ease-out;
+}
+
+@keyframes dropdown-appear {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.status-option {
+    transition: background-color 0.15s ease;
 } 
