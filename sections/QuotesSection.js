@@ -3,6 +3,7 @@ export class QuotesSection {
         this.storageService = storageService;
         this.quotesService = quotesService;
         this.element = document.getElementById('quotesSection');
+        this.activeCategory = null; // 当前选中的分类
         this.categories = [
             { name: '脑科学', color: 'purple', icon: '🧠' },
             { name: '效率管理', color: 'blue', icon: '⚡' },
@@ -28,7 +29,12 @@ export class QuotesSection {
     }
 
     renderWall() {
-        const quotes = this.quotesService.getAllQuotes();
+        let quotes = this.quotesService.getAllQuotes();
+        
+        // 根据选中的分类筛选
+        if (this.activeCategory) {
+            quotes = quotes.filter(quote => quote.category === this.activeCategory);
+        }
         
         this.element.innerHTML = `
             <div class="p-6 space-y-6">
@@ -44,19 +50,40 @@ export class QuotesSection {
                 </div>
 
                 <!-- Category Filters -->
-                <div class="flex flex-wrap gap-2">
+                <div class="flex flex-wrap gap-2" id="categoryFilters">
+                    <button class="category-filter px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5
+                        ${!this.activeCategory ? 'bg-gray-100 text-gray-600 ring-2 ring-gray-300' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'} 
+                        transition-colors"
+                        data-category="">
+                        <span>🔍</span>
+                        <span>All</span>
+                    </button>
                     ${this.categories.map(cat => `
                         <button class="category-filter px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5
-                            bg-${cat.color}-100 text-${cat.color}-600 hover:bg-${cat.color}-200 transition-colors">
+                            ${this.activeCategory === cat.name ? 
+                                `bg-${cat.color}-100 text-${cat.color}-600 ring-2 ring-${cat.color}-300` : 
+                                `bg-${cat.color}-50 text-${cat.color}-500 hover:bg-${cat.color}-100`}
+                            transition-colors"
+                            data-category="${cat.name}">
                             <span>${cat.icon}</span>
                             <span>${cat.name}</span>
                         </button>
                     `).join('')}
                 </div>
 
+                <!-- Results Count -->
+                <div class="text-sm text-gray-500">
+                    Showing ${quotes.length} ${this.activeCategory ? `quotes in "${this.activeCategory}"` : 'quotes'}
+                </div>
+
                 <!-- Quotes Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    ${quotes.map(quote => this.createQuoteCard(quote)).join('')}
+                    ${quotes.length ? 
+                        quotes.map(quote => this.createQuoteCard(quote)).join('') :
+                        `<div class="col-span-full text-center py-8 text-gray-400">
+                            No quotes found ${this.activeCategory ? `in "${this.activeCategory}"` : ''}
+                        </div>`
+                    }
                 </div>
             </div>
         `;
@@ -122,23 +149,43 @@ export class QuotesSection {
     }
 
     attachEventListeners() {
-        // 使用事件委托处理所有按钮点击
-        this.element.addEventListener('click', (e) => {
+        document.addEventListener('click', (e) => {
             console.log('Clicked element:', e.target);
             const target = e.target;
+
+            // 如果点击的是模态框外部，关闭模态框
+            const modal = document.getElementById('modal');
+            if (modal && !modal.classList.contains('hidden') && e.target === modal) {
+                modal.classList.add('hidden');
+            }
+
+            // 只处理当前 section 内的点击
+            if (!this.element.contains(target)) return;
+
             const backBtn = target.closest('#backToWallBtn');
             const switchBtn = target.closest('#switchToManageBtn');
             const addBtn = target.closest('#addQuoteBtn');
             const editBtn = target.closest('.edit-quote');
             const deleteBtn = target.closest('.delete-quote');
+            const categoryBtn = target.closest('.category-filter');
 
             console.log('Found buttons:', {
                 backBtn,
                 switchBtn,
                 addBtn,
                 editBtn,
-                deleteBtn
+                deleteBtn,
+                categoryBtn
             });
+
+            // 分类筛选按钮
+            if (categoryBtn) {
+                console.log('Category button clicked:', categoryBtn.dataset.category);
+                const category = categoryBtn.dataset.category;
+                this.activeCategory = category || null;
+                this.render();
+                return;
+            }
 
             // 返回按钮
             if (backBtn) {
