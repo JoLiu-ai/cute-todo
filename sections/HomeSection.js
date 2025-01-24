@@ -1,7 +1,8 @@
 export class HomeSection {
-    constructor(storageService, dateService) {
+    constructor(storageService, dateService, quotesService) {
         this.storageService = storageService;
         this.dateService = dateService;
+        this.quotesService = quotesService;
         this.element = document.getElementById('homeSection');
     }
 
@@ -17,9 +18,37 @@ export class HomeSection {
         const tasks = this.storageService.get('tasks') || [];
         const notes = this.storageService.get('notes') || [];
         const completedTasks = tasks.filter(t => t.completed).length;
+        const quote = this.quotesService?.getRandomQuote();
         
         this.element.innerHTML = `
             <div class="space-y-8">
+                <!-- Daily Knowledge -->
+                ${quote ? `
+                    <div class="relative p-1 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl group">
+                        <div class="bg-white rounded-lg p-6 relative overflow-hidden">
+                            <div class="absolute -top-6 -right-6 text-8xl text-purple-50 select-none">💡</div>
+                            <div class="relative flex items-start gap-4">
+                                <div class="flex-1 space-y-2">
+                                    <div class="text-sm text-purple-400 font-medium mb-2">Today's Learning</div>
+                                    <div class="text-gray-600">${quote.content}</div>
+                                    <div class="flex items-center justify-between text-xs">
+                                        <div class="flex items-center gap-2">
+                                            <span class="px-2 py-1 bg-purple-50 rounded-full text-purple-500">
+                                                ${quote.category}
+                                            </span>
+                                            <span class="text-purple-400">—— ${quote.source}</span>
+                                        </div>
+                                        <button data-section="knowledge" class="text-purple-400 hover:text-purple-500">
+                                            View All Knowledge →
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-200/20 to-pink-200/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                    </div>
+                ` : ''}
+
                 <!-- Welcome & Progress -->
                 <div class="section-container bg-gradient-to-br from-blue-50 to-purple-50 relative overflow-hidden">
                     <div class="absolute -top-12 -right-10 text-9xl text-white/10 select-none animate-float">🌸</div>

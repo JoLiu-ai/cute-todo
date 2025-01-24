@@ -150,9 +150,18 @@ function initializeSidebarCountdowns(storageService) {
                             <span class="text-sm font-medium text-purple-500">${countdown.name}</span>
                         </div>
 
-                        <div class="countdown-timer font-bold text-2xl text-purple-600 tabular-nums mb-2 tracking-wider" data-target="${countdown.targetDate}">
-                            Loading...
-                        </div>
+                        <div class="countdown-timer font-bold text-2xl text-purple-600 tabular-nums mb-2 tracking-wider" data-target="${countdown.targetDate}">${
+                            (() => {
+                                const target = new Date(countdown.targetDate);
+                                const now = new Date();
+                                const diff = target - now;
+                                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                return days > 0 ? 
+                                    `${days}d ${hours.toString().padStart(2, '0')}h` : 
+                                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                            })()
+                        }</div>
 
                         <div class="grid grid-cols-2 gap-2 w-full text-center text-xs">
                             <div class="bg-white/50 backdrop-blur-sm rounded-lg p-2 shadow-sm">
