@@ -18,6 +18,7 @@ export class BooksSection {
             { id: 'toread', name: 'To Read', icon: '📚' },
             { id: 'completed', name: 'Completed', icon: '✅' }
         ];
+        this.activeStatus = null;
     }
 
     initialize() {
@@ -39,7 +40,7 @@ export class BooksSection {
                 <div class="p-6 space-y-6">
                     <!-- Header -->
                     <div class="flex justify-between items-center">
-                        <h2 class="text-2xl font-bold text-gray-800">�� Reading List</h2>
+                        <h2 class="text-2xl font-bold text-gray-800">📚 Reading List</h2>
                         <div class="flex items-center gap-2">
                             <div class="flex items-center bg-gray-100 rounded-lg p-1">
                                 <button class="view-mode-btn p-2 rounded-lg ${this.viewMode === 'grid' ? 'bg-white shadow-sm' : ''}"
@@ -70,48 +71,45 @@ export class BooksSection {
                         </div>
                     </div>
 
-                    <!-- Category Filters -->
-                    <div class="flex flex-wrap gap-2">
-                        <button class="category-filter px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5
-                            ${!this.activeCategory ? 'bg-gray-100 text-gray-600 ring-2 ring-gray-300' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'} 
-                            transition-colors"
-                            data-category="">
-                            <span>🔍</span>
-                            <span>All Categories</span>
-                        </button>
-                        ${this.categories.map(cat => `
-                            <button class="category-filter px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5
-                                ${this.activeCategory === cat.name ? 
-                                    `bg-${cat.color}-100 text-${cat.color}-600 ring-2 ring-${cat.color}-300` : 
-                                    `bg-${cat.color}-50 text-${cat.color}-500 hover:bg-${cat.color}-100`}
-                                transition-colors"
-                                data-category="${cat.name}">
-                                <span>${cat.icon}</span>
-                                <span>${cat.name}</span>
+                    <!-- Filters -->
+                    <div class="flex items-center gap-4 bg-white p-3 rounded-lg shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-500">Filter by:</span>
+                            <button id="categoryFilterBtn" 
+                                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm
+                                    ${this.activeCategory ? 
+                                        `bg-${(this.categories.find(c => c.name === this.activeCategory) || {color: 'gray'}).color}-50 
+                                         text-${(this.categories.find(c => c.name === this.activeCategory) || {color: 'gray'}).color}-600` : 
+                                        'bg-gray-50 text-gray-600'} 
+                                    hover:bg-gray-100 transition-colors">
+                                ${this.activeCategory ? 
+                                    `${(this.categories.find(c => c.name === this.activeCategory) || {icon: '🔍'}).icon} 
+                                     ${this.activeCategory}` : 
+                                    '🔍 All Categories'}
+                                <span class="ml-1 opacity-60">▼</span>
                             </button>
-                        `).join('')}
-                    </div>
-
-                    <!-- Status Filters -->
-                    <div class="flex items-center gap-2">
-                        <button class="status-filter px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5
-                            ${!this.activeStatus ? 'bg-gray-100 text-gray-600 ring-2 ring-gray-300' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'} 
-                            transition-colors"
-                            data-status="">
-                            <span>📚</span>
-                            <span>All Status</span>
-                        </button>
-                        ${this.statusGroups.map(status => `
-                            <button class="status-filter px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5
-                                ${this.activeStatus === status.id ? 
-                                    'bg-gray-100 text-gray-600 ring-2 ring-gray-300' : 
-                                    'bg-gray-50 text-gray-500 hover:bg-gray-100'}
-                                transition-colors"
-                                data-status="${status.id}">
-                                <span>${status.icon}</span>
-                                <span>${status.name}</span>
+                            <button id="statusFilterBtn" 
+                                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm
+                                    ${this.activeStatus ? 
+                                        `bg-${this.activeStatus === 'reading' ? 'yellow' : 
+                                             this.activeStatus === 'completed' ? 'green' : 'gray'}-50 
+                                        text-${this.activeStatus === 'reading' ? 'yellow' : 
+                                            this.activeStatus === 'completed' ? 'green' : 'gray'}-600` : 
+                                        'bg-gray-50 text-gray-600'} 
+                                    hover:bg-gray-100 transition-colors">
+                                ${this.activeStatus ? 
+                                    `${this.getStatusIcon(this.activeStatus)} 
+                                     ${this.getStatusName(this.activeStatus)}` : 
+                                    '📚 All Status'}
+                                <span class="ml-1 opacity-60">▼</span>
                             </button>
-                        `).join('')}
+                        </div>
+                        ${this.activeCategory || this.activeStatus ? `
+                            <button id="clearFiltersBtn" 
+                                class="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+                                Clear filters
+                            </button>
+                        ` : ''}
                     </div>
 
                     <!-- Table -->
@@ -151,7 +149,7 @@ export class BooksSection {
                 <div class="p-6 space-y-6">
                     <!-- Header -->
                     <div class="flex justify-between items-center">
-                        <h2 class="text-2xl font-bold text-gray-800">�� Reading List</h2>
+                        <h2 class="text-2xl font-bold text-gray-800">📚 Reading List</h2>
                         <div class="flex items-center gap-2">
                             <div class="flex items-center bg-gray-100 rounded-lg p-1">
                                 <button class="view-mode-btn p-2 rounded-lg ${this.viewMode === 'grid' ? 'bg-white shadow-sm' : ''}"
@@ -182,26 +180,45 @@ export class BooksSection {
                         </div>
                     </div>
 
-                    <!-- Category Filters -->
-                    <div class="flex flex-wrap gap-2">
-                        <button class="category-filter px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5
-                            ${!this.activeCategory ? 'bg-gray-100 text-gray-600 ring-2 ring-gray-300' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'} 
-                            transition-colors"
-                            data-category="">
-                            <span>🔍</span>
-                            <span>All Categories</span>
-                        </button>
-                        ${this.categories.map(cat => `
-                            <button class="category-filter px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5
-                                ${this.activeCategory === cat.name ? 
-                                    `bg-${cat.color}-100 text-${cat.color}-600 ring-2 ring-${cat.color}-300` : 
-                                    `bg-${cat.color}-50 text-${cat.color}-500 hover:bg-${cat.color}-100`}
-                                transition-colors"
-                                data-category="${cat.name}">
-                                <span>${cat.icon}</span>
-                                <span>${cat.name}</span>
+                    <!-- Filters -->
+                    <div class="flex items-center gap-4 bg-white p-3 rounded-lg shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-500">Filter by:</span>
+                            <button id="categoryFilterBtn" 
+                                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm
+                                    ${this.activeCategory ? 
+                                        `bg-${(this.categories.find(c => c.name === this.activeCategory) || {color: 'gray'}).color}-50 
+                                         text-${(this.categories.find(c => c.name === this.activeCategory) || {color: 'gray'}).color}-600` : 
+                                        'bg-gray-50 text-gray-600'} 
+                                    hover:bg-gray-100 transition-colors">
+                                ${this.activeCategory ? 
+                                    `${(this.categories.find(c => c.name === this.activeCategory) || {icon: '🔍'}).icon} 
+                                     ${this.activeCategory}` : 
+                                    '🔍 All Categories'}
+                                <span class="ml-1 opacity-60">▼</span>
                             </button>
-                        `).join('')}
+                            <button id="statusFilterBtn" 
+                                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm
+                                    ${this.activeStatus ? 
+                                        `bg-${this.activeStatus === 'reading' ? 'yellow' : 
+                                             this.activeStatus === 'completed' ? 'green' : 'gray'}-50 
+                                        text-${this.activeStatus === 'reading' ? 'yellow' : 
+                                            this.activeStatus === 'completed' ? 'green' : 'gray'}-600` : 
+                                        'bg-gray-50 text-gray-600'} 
+                                    hover:bg-gray-100 transition-colors">
+                                ${this.activeStatus ? 
+                                    `${this.getStatusIcon(this.activeStatus)} 
+                                     ${this.getStatusName(this.activeStatus)}` : 
+                                    '📚 All Status'}
+                                <span class="ml-1 opacity-60">▼</span>
+                            </button>
+                        </div>
+                        ${this.activeCategory || this.activeStatus ? `
+                            <button id="clearFiltersBtn" 
+                                class="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+                                Clear filters
+                            </button>
+                        ` : ''}
                     </div>
 
                     <!-- Books by Status -->
@@ -806,12 +823,130 @@ export class BooksSection {
         });
     }
 
+    showCategoryPopup(button) {
+        const existingPopup = document.getElementById('categoryPopup');
+        if (existingPopup) existingPopup.remove();
+
+        const rect = button.getBoundingClientRect();
+
+        const popup = document.createElement('div');
+        popup.id = 'categoryPopup';
+        popup.className = 'fixed bg-white rounded-lg shadow-xl border border-gray-200 z-50';
+        popup.style.cssText = `
+            top: ${rect.bottom + window.scrollY + 5}px;
+            left: ${rect.left + window.scrollX}px;
+            min-width: 200px;
+        `;
+
+        popup.innerHTML = `
+            <div class="p-2 space-y-1">
+                <button class="category-option w-full text-left px-3 py-2 text-sm rounded-lg
+                    ${!this.activeCategory ? 'bg-gray-100' : 'hover:bg-gray-50'}"
+                    data-category="">
+                    <span class="inline-flex items-center gap-2">
+                        🔍 All Categories
+                        ${!this.activeCategory ? '<span class="ml-auto">✓</span>' : ''}
+                    </span>
+                </button>
+                ${this.categories.map(cat => `
+                    <button class="category-option w-full text-left px-3 py-2 text-sm rounded-lg
+                        ${this.activeCategory === cat.name ? 'bg-gray-100' : 'hover:bg-gray-50'}"
+                        data-category="${cat.name}">
+                        <span class="inline-flex items-center gap-2">
+                            ${cat.icon} ${cat.name}
+                            ${this.activeCategory === cat.name ? '<span class="ml-auto">✓</span>' : ''}
+                        </span>
+                    </button>
+                `).join('')}
+            </div>
+        `;
+
+        const overlay = document.createElement('div');
+        overlay.className = 'fixed inset-0 z-40';
+        overlay.addEventListener('click', () => {
+            popup.remove();
+            overlay.remove();
+        });
+
+        document.body.appendChild(overlay);
+        document.body.appendChild(popup);
+
+        popup.querySelectorAll('.category-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const category = option.dataset.category;
+                this.activeCategory = category || null;
+                this.render();
+                popup.remove();
+                overlay.remove();
+            });
+        });
+    }
+
+    showStatusFilterPopup(button) {
+        const existingPopup = document.getElementById('statusFilterPopup');
+        if (existingPopup) existingPopup.remove();
+
+        const rect = button.getBoundingClientRect();
+
+        const popup = document.createElement('div');
+        popup.id = 'statusFilterPopup';
+        popup.className = 'fixed bg-white rounded-lg shadow-xl border border-gray-200 z-50';
+        popup.style.cssText = `
+            top: ${rect.bottom + window.scrollY + 5}px;
+            left: ${rect.left + window.scrollX}px;
+            min-width: 200px;
+        `;
+
+        popup.innerHTML = `
+            <div class="p-2 space-y-1">
+                <button class="status-filter-option w-full text-left px-3 py-2 text-sm rounded-lg
+                    ${!this.activeStatus ? 'bg-gray-100' : 'hover:bg-gray-50'}"
+                    data-status="">
+                    <span class="inline-flex items-center gap-2">
+                        📚 All Status
+                        ${!this.activeStatus ? '<span class="ml-auto">✓</span>' : ''}
+                    </span>
+                </button>
+                ${this.statusGroups.map(status => `
+                    <button class="status-filter-option w-full text-left px-3 py-2 text-sm rounded-lg
+                        ${this.activeStatus === status.id ? 'bg-gray-100' : 'hover:bg-gray-50'}"
+                        data-status="${status.id}">
+                        <span class="inline-flex items-center gap-2">
+                            ${status.icon} ${status.name}
+                            ${this.activeStatus === status.id ? '<span class="ml-auto">✓</span>' : ''}
+                        </span>
+                    </button>
+                `).join('')}
+            </div>
+        `;
+
+        const overlay = document.createElement('div');
+        overlay.className = 'fixed inset-0 z-40';
+        overlay.addEventListener('click', () => {
+            popup.remove();
+            overlay.remove();
+        });
+
+        document.body.appendChild(overlay);
+        document.body.appendChild(popup);
+
+        popup.querySelectorAll('.status-filter-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const status = option.dataset.status;
+                this.activeStatus = status || null;
+                this.render();
+                popup.remove();
+                overlay.remove();
+            });
+        });
+    }
+
     attachEventListeners() {
         this.element.addEventListener('click', (e) => {
             const addBtn = e.target.closest('#addBookBtn');
             const editBtn = e.target.closest('.edit-book');
             const manageCategoriesBtn = e.target.closest('#manageCategoriesBtn');
-            const categoryBtn = e.target.closest('.category-filter');
+            const categoryFilterBtn = e.target.closest('#categoryFilterBtn');
             const viewModeBtn = e.target.closest('.view-mode-btn');
 
             if (addBtn) {
@@ -827,10 +962,9 @@ export class BooksSection {
                 this.showCategoryManagerModal();
             }
 
-            if (categoryBtn) {
-                const category = categoryBtn.dataset.category;
-                this.activeCategory = category || null;
-                this.render();
+            if (categoryFilterBtn) {
+                this.showCategoryPopup(categoryFilterBtn);
+                e.stopPropagation();
             }
 
             if (viewModeBtn) {
@@ -848,6 +982,19 @@ export class BooksSection {
                     this.showStatusPopup(statusBtn, bookId, book.status);
                 }
                 e.stopPropagation();
+            }
+
+            const statusFilterBtn = e.target.closest('#statusFilterBtn');
+            if (statusFilterBtn) {
+                this.showStatusFilterPopup(statusFilterBtn);
+                e.stopPropagation();
+            }
+
+            const clearFiltersBtn = e.target.closest('#clearFiltersBtn');
+            if (clearFiltersBtn) {
+                this.activeCategory = null;
+                this.activeStatus = null;
+                this.render();
             }
         });
     }
