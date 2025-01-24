@@ -18,74 +18,57 @@ export class HomeSection {
         const tasks = this.storageService.get('tasks') || [];
         const notes = this.storageService.get('notes') || [];
         const completedTasks = tasks.filter(t => t.completed).length;
-        const quote = this.quotesService?.getRandomQuote();
+        const quote = this.quotesService.getRandomQuote();
         
         this.element.innerHTML = `
             <div class="space-y-8">
-                <!-- Daily Knowledge -->
-                ${quote ? `
-                    <div class="relative p-1 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl group">
-                        <div class="bg-white rounded-lg p-6 relative overflow-hidden">
-                            <div class="absolute -top-6 -right-6 text-8xl text-purple-50 select-none">💡</div>
-                            <div class="relative flex items-start gap-4">
-                                <div class="flex-1 space-y-2">
-                                    <div class="text-sm text-purple-400 font-medium mb-2">Today's Learning</div>
-                                    <div class="text-gray-600">${quote.content}</div>
-                                    <div class="flex items-center justify-between text-xs">
-                                        <div class="flex items-center gap-2">
-                                            <span class="px-2 py-1 bg-purple-50 rounded-full text-purple-500">
-                                                ${quote.category}
-                                            </span>
-                                            <span class="text-purple-400">—— ${quote.source}</span>
-                                        </div>
-                                        <button data-section="knowledge" class="text-purple-400 hover:text-purple-500">
-                                            View All Knowledge →
-                                        </button>
+                <!-- 整合后的欢迎卡片 -->
+                <div class="section-container bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-2xl border-2 border-amber-100 shadow-lg">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <!-- 左侧欢迎区域 -->
+                        <div class="space-y-2 flex-1">
+                            <h2 class="text-2xl font-bold text-orange-600">Welcome Back! 🥕</h2>
+                            <p class="text-sm text-orange-400">Let's make today productive and joyful!</p>
+                            <div class="text-xs text-orange-300">
+                                ${this.dateService.getFormattedDate()}
+                            </div>
+                        </div>
+
+                        <!-- 右侧知识引用 -->
+                        <div class="flex-1 max-w-md">
+                            <div class="bg-white/90 backdrop-blur-sm p-4 rounded-xl border-l-4 border-amber-400 shadow-sm">
+                                <div class="space-y-2">
+                                    <p class="text-sm leading-relaxed text-orange-600 italic">
+                                        “${quote.content}”
+                                    </p>
+                                    <div class="flex items-center gap-2 text-xs">
+                                        <span class="px-2 py-1 bg-amber-100 rounded-full text-amber-600">
+                                            ${quote.category}
+                                        </span>
+                                        <span class="text-amber-400">—— ${quote.source}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="absolute inset-0 bg-gradient-to-r from-purple-200/20 to-pink-200/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                     </div>
-                ` : ''}
+                </div>
 
-                <!-- Welcome & Progress -->
+                <!-- Task Progress -->
                 <div class="section-container bg-gradient-to-br from-blue-50 to-purple-50 relative overflow-hidden">
                     <div class="absolute -top-12 -right-10 text-9xl text-white/10 select-none animate-float">🌸</div>
                     
                     <div class="relative space-y-8">
-                        <!-- Welcome Header -->
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-baseline gap-3 px-4">
-                                <h2 class="text-2xl font-bold text-blue-600">Welcome Back! ✨</h2>
-                                <p class="text-sm text-blue-400">Let's make today fun!</p>
-                            </div>
-                            <div class="flex items-center gap-6">
-                                <div class="flex flex-col items-end">
-                                    <div class="text-sm text-blue-400">
-                                        ${this.dateService.getFormattedDate()}
-                                    </div>
-                                    <div class="text-xs text-pink-400 mt-1" id="countdown">
-                                        Loading...
-                                    </div>
-                                </div>
-                                <div class="bunny-progress select-none relative">
-                                    <div class="text-5xl animate-proper-bounce">🐰</div>
-                                    <div class="carrot absolute -bottom-1 -right-2 text-xl animate-spin-slow">🥕</div>
-                                </div>
-                            </div>
-                        </div>
+                    </div>
+                </div>
 
-                        <!-- Task Progress -->
-                        <div class="bg-white/50 p-6 rounded-xl backdrop-blur-sm">
-                            <div class="flex items-center justify-between mb-3">
-                                <h3 class="text-sm font-medium text-purple-600">Task Completion</h3>
-                                <div class="text-xl font-bold text-purple-600 tabular-nums" id="completionRate">0%</div>
-                            </div>
-                            <div class="h-3 bg-purple-100 rounded-full overflow-hidden">
-                                <div class="h-full bg-purple-400 rounded-full transition-all duration-500" id="completionBar"></div>
-                            </div>
-                        </div>
+                <!-- Task Progress -->
+                <div class="bg-white/50 p-6 rounded-xl backdrop-blur-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-medium text-purple-600">Task Completion</h3>
+                        <div class="text-xl font-bold text-purple-600 tabular-nums" id="completionRate">0%</div>
+                    </div>
+                    <div class="h-3 bg-purple-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-purple-400 rounded-full transition-all duration-500" id="completionBar"></div>
                     </div>
                 </div>
 
