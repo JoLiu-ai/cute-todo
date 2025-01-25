@@ -8,7 +8,6 @@ After adding more and more functions, I realized I needed to quickly brush up on
 
 # home page
 <img width="1029" alt="截屏2025-01-24 15 53 47" src="https://github.com/user-attachments/assets/7aca68f3-443e-4051-ac42-2d1982ae2821" />
-![截屏2025-01-25 10 29 57](https://github.com/user-attachments/assets/e8ab1eae-ea0b-4217-8a3f-318962dd872c)
 
 
 # task managing
